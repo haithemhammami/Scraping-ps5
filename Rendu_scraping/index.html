@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scraping Form</title>
+  <style>
+    /* CSS pour le fond vidéo */
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    #video-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -1;
+    }
+    .video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 3ms ease;
+    }
+    .active {
+      opacity: 1;
+    }
+
+    /* CSS pour le formulaire */
+    .form-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50%;
+      max-width: 500px;
+      background-color: rgba(255, 255, 255, 0.85);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes zoom {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); } /* Zoom avant à 50% de l'animation */
+    100% { transform: scale(1); } /* Retour à la taille normale à la fin de l'animation */
+  }
+
+    h1 {
+      color: #092f94;
+      animation: zoom 3s infinite alternate; /* Animation infinie du titre */
+    }
+    form {
+      text-align: left;
+      padding: 20px;
+    }
+    label {
+      font-weight: bold;
+      color: #0e2a71;
+    }
+    input[type="text"],
+    input[type="email"],
+    button {
+      width: calc(100% - 20px); /* Ajuster la largeur pour prendre en compte le padding */
+      padding: 10px;
+      margin: 5px 0 20px;
+      border: 2px solid #6d81b5; /* Encadrer les champs */
+      border-radius: 5px;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease; /* Animation de transition pour le changement de couleur */
+    }
+    input[type="text"]:focus,
+    input[type="email"]:focus {
+      border-color: #a4bcfc; /* Couleur de bordure au focus */
+    }
+    button {
+      background-color: #092f94;
+      color: #ffffff;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      padding: 12px 20px;
+      font-size: 16px;
+      transition: background-color 0.3s ease, transform 0.3s ease; /* Animation de transition pour le changement de couleur et de zoom */
+    }
+    button:hover {
+      background-color: #0e2a71; /* Couleur de fond au survol */
+      transform: scale(1.05); /* Zoom sur le bouton au survol */
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    button:active {
+      animation: shake 0.5s ease; /* Animation au clic sur le bouton */
+    }
+  </style>
+</head>
+<body>
+  <!-- Conteneur pour les vidéos d'arrière-plan -->
+  <div id="video-container">
+    <video autoplay muted loop class="video active" id="video1">
+      <source src="https://gmedia.playstation.com/is/content/SIEPDC/global_pdc/en/hardware/ps5/channel-specific-content/pdc/2021/overview/akqa/video//ps5-immersive_controller-adaptive_triggers-widescreen.mp4#t=0.04" type="video/mp4">
+    </video>
+    <video autoplay muted loop class="video" id="video2">
+      <source src="https://gmedia.playstation.com/is/content/SIEPDC/global_pdc/en/hardware/ps5/channel-specific-content/pdc/2021/overview/akqa/video//ps5-immersive_controller-haptic_feedback-widescreen.mp4#t=0.04" type="video/mp4">
+    </video>
+    <video autoplay muted loop class="video" id="video3">
+      <source src="https://gmedia.playstation.com/is/content/SIEPDC/global_pdc/en/hardware/ps5/channel-specific-content/pdc/2021/overview/akqa/video//ps5-performance-creativity-widescreen.mp4#t=0.04" type="video/mp4">
+    </video>
+    <video autoplay muted loop class="video" id="video4">
+      <source src="https://gmedia.playstation.com/is/content/SIEPDC/global_pdc/en/hardware/ps5/channel-specific-content/pdc/2021/overview/akqa/video//ps5-games-intro-loop.mp4#t=0.04" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- Conteneur principal pour le formulaire -->
+  <div class="form-container">
+    <h1>Votre PS5 au meilleur prix actuel</h1>
+    <!-- Formulaire -->
+    <form id="scrapingForm">
+      <label for="nom">Nom:</label><br>
+      <input type="text" id="nom" name="nom" required><br>
+      <label for="prenom">Prénom:</label><br>
+      <input type="text" id="prenom" name="prenom" required><br>
+      <label for="email">Email:</label><br>
+      <input type="email" id="email" name="email" required><br>
+      <button type="submit">Let's Go</button>
+    </form>
+  </div>
+  
+  <!-- Script pour la gestion des vidéos d'arrière-plan -->
+  <script>
+    const videos = document.querySelectorAll('.video');
+    const videoDurations = [7997, 3997, 3997, 8997]; // Durée de chaque vidéo en millisecondes
+    let currentVideoIndex = 0;
+    videos[currentVideoIndex].classList.add('active');
+
+    function playNextVideo() {
+      videos[currentVideoIndex].classList.remove('active');
+      currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+      videos[currentVideoIndex].classList.add('active');
+      setTimeout(playNextVideo, videoDurations[currentVideoIndex]);
+    }
+
+    // Lancement de la lecture de la première vidéo
+    setTimeout(playNextVideo, videoDurations[currentVideoIndex]);
+</script>
+
+  <!-- Script pour la soumission du formulaire -->
+  <script>
+    document.getElementById('scrapingForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(this);
+      const nom = formData.get('nom');
+      const prenom = formData.get('prenom');
+      const email = formData.get('email');
+      
+      try {
+        const response = await fetch('/sendData', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ nom: nom, prenom: prenom, email: email })
+        });
+        const data = await response.json();
+        alert(data.message); // Affiche un message de confirmation
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again later.');
+      }
+    });
+  </script>
+</body>
+</html>
